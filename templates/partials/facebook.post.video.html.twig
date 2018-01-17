@@ -1,0 +1,5 @@
+<p class="story">{{ post.story }}</p>
+<p>{{ post.message|raw }}</p>
+{% for attachment in post.attachments.data %}
+<div class="fb-video" data-href="{{ attachment.target.url }}" data-width="500" data-show-text="false"><blockquote cite="{{ attachment.target.url }}" class="fb-xfbml-parse-ignore"><a href="{{ attachment.target.url }}">{{ attachment.target.title }}</a></blockquote></div>
+{% endfor %}

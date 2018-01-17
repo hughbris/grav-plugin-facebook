@@ -1,0 +1,17 @@
+<p class="story">{{ post.story }}</p>
+<p>{{ post.message|raw }}</p>
+{% for attachment in post.attachments.data %}
+	{% if attachment.type == "new_album" %}
+		<div class="facebook-gallery">
+			<h5>{{ attachment.title|raw }}</h5>
+			<div id="fgp-{{ random() }}" class="{{ album_classname }}"> {# NB: from the source and playing, Unite Gallery only seems to work on elements with an @id, though @class can be used as selector to initialise #}
+			{% for subattachment in attachment.subattachments.data %}
+				<img src="{{ subattachment.media.image.src }}" /> {# TODO: look at using width/height values #}
+				{# TODO: caption/title here #}
+			{% endfor %}
+			</div>
+		</div>
+	{% else %}
+		{{ post.image|raw }} {# TODO: test this! on a real example #}
+	{% endif %}
+{% endfor %}

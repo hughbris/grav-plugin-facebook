@@ -32,8 +32,10 @@ class FacebookPlugin extends Plugin {
      * Initialize configuration.
      */
     public function onPluginsInitialized() {
-        $this->enable(['onTwigTemplatePaths' => ['onTwigTemplatePaths', 0],
-            'onTwigInitialized' => ['onTwigInitialized', 0]]);
+        $this->enable([
+            'onTwigTemplatePaths' => ['onTwigTemplatePaths', 0],
+            'onTwigInitialized' => ['onTwigInitialized', 0],
+        ]);
     }
 
     /**
@@ -49,12 +51,10 @@ class FacebookPlugin extends Plugin {
         if ($this->config->get('plugins.facebook.built_in_css')) {
             $this->grav['assets']->add('plugin://facebook/css/facebook.css');
         }
-        if ($this->config->get('plugins.facebook.facebook_page_settings.like_button') || $this->config->get('plugins.facebook.facebook_page_settings.comments')) {
-            $this->grav['assets']->addJs('plugin://facebook/js/social-plugins.js', [
-                'loading'  => 'async',
-                'pipeline' => FALSE,
-                ]);
-        }
+        $this->grav['assets']->addJs('plugin://facebook/js/social-plugins.js', [
+            'loading'  => 'async',
+            'pipeline' => FALSE,
+            ]);
         if ($this->config->get('plugins.facebook.facebook_album_settings.use_unitegallery')) {
             $this->grav['assets']->add('jquery', 101);
             $this->grav['assets']->addJs('plugin://facebook/assets/unitegallery/js/unitegallery.min.js');
@@ -76,7 +76,7 @@ class FacebookPlugin extends Plugin {
     }
 
 
-    public function getFacebookPosts($filtered_by_tags_from_page = "") {
+    public function getFacebookPosts($filtered_by_tags_from_page = "", $format = 'html') {
         /** @var Page $page */
         $page = $this->grav['page'];
         /** @var Twig $twig */
@@ -91,9 +91,8 @@ class FacebookPlugin extends Plugin {
         // Generate API url
         $url =
             'https://graph.facebook.com/' . $config->get('facebook_page_settings.page_id')
-            . '/?fields=feed{permalink_url,created_time,link,attachments,message}&access_token='
-            . $config->get('facebook_common_settings.application_id') . '|'
-            . $config->get('facebook_common_settings.application_secret');
+            . '/?fields=feed.limit(' . $config->get('facebook_page_settings.count') . '){permalink_url,created_time,link,attachments,message,story,type,with_tags}'
+            . '&access_token=' . $config->get('facebook_common_settings.application_id') . '|' . $config->get('facebook_common_settings.application_secret');
         $results = Response::get($url);
 
         $this->parsePostResponse($results, $config, $filter_by_tags);
@@ -102,18 +101,25 @@ class FacebookPlugin extends Plugin {
             ['pageLink' => 'https://www.facebook.com/'
                 . $config->get('facebook_page_settings.page_name'),
                 'sectionTitleRaw' => $config->get('facebook_page_settings.section_title'),
-                'sectionTitle' => '<a href="https://www.facebook.com/'
-                    . $config->get('facebook_page_settings.page_name') . '/"><h3 class="heading">'
-                    . $config->get('facebook_page_settings.section_title') . '</h3></a>',
                 'feed' => $this->feeds,
-                'count' => empty($config->get('facebook_page_settings.count')) ? 7
-                    : $config->get('facebook_page_settings.count'),
+                'count' => $config->get('facebook_page_settings.count'),
                 'fb_page_settings' => $config->get('facebook_page_settings'),
             ];
 
-        $output =
-            $this->grav['twig']->twig()
-                ->render($this->template_post_html, $this->template_post_vars);
+        switch($format) {
+            case 'object':
+                $output = $this->template_post_vars;
+                break;
+            case 'array':
+                $output = $this->feeds;
+                break;
+            default: // 'html'
+                $this->template_post_vars['sectionTitle'] = '<a href="https://www.facebook.com/'
+                    . $config->get('facebook_page_settings.page_name') . '/"><h3 class="heading">'
+                    . $config->get('facebook_page_settings.section_title') . '</h3></a>';
+                $output = $this->grav['twig']->twig()->render($this->template_post_html, $this->template_post_vars);
+        }
+
         return $output;
     }
 
@@ -187,13 +193,10 @@ class FacebookPlugin extends Plugin {
     }
 
     private function parsePostResponse($json, $config, $tags_string) {
-        $r = array();
         $content = json_decode($json);
 
-        $count = $config->get('facebook_page_settings.count');
-
         foreach ($content->feed->data as $val) {
-            if (property_exists($val, 'message') && $this->tagsExist($tags_string, $val->message)) {
+            if (empty(trim($tags_string)) || (property_exists($val, 'message') && $this->tagsExist($tags_string, $val->message))) {
                 $created_at = $val->created_time;
                 $created_date_object = date_create($created_at);
                 $formatted_date =
@@ -215,15 +218,20 @@ class FacebookPlugin extends Plugin {
                     $image_html .= "</figure>";
                 }
 
-                $r[$count]['timeObject'] = $created_date_object;
-                $r[$count]['time'] = $formatted_date;
-                $r[$count]['image'] = $image_html;
-                $r[$count]['imageSrc'] = $imageSrc;
-                $r[$count]['message'] = nl2br($val->message);
-                $r[$count]['link'] = $val->permalink_url;
-                $this->addFeed($r);
+                array_push($this->feeds, array(
+                    'timeObject' => $created_date_object,
+                    'time' => $formatted_date,
+                    'image' => $image_html,
+                    'imageSrc' => $imageSrc,
+                    'message' => ( property_exists($val, 'message') ? nl2br($val->message) : ''),
+                    'messageRaw' => ( property_exists($val, 'message') ? $val->message : ''),
+                    'link' => $val->permalink_url,
+                    'story' => ( property_exists($val, 'story') ? $val->story : ''),
+                    'type' => $val->type,
+                    'with_tags' => ( property_exists($val, 'with_tags') ? $val->with_tags : ''),
+                    'attachments' => ( property_exists($val, 'attachments') ? $val->attachments : ''),
+                    ));
 
-                $count -= 1;
             }
         }
     }

@@ -1,0 +1,41 @@
+{% set album_classname = 'facebook-gallery-photoset' %}
+<div id='facebook-posts'>
+<a href="{{ pageLink|raw}}"><h3 class="heading">{{ sectionTitleRaw|raw }}</h3></a>
+{% for post in posts  %}
+    <div class="facebook-post {{ post.type }}">
+        <a href='{{ post.link|raw }}'><i class="fa fa-envelope post-icon" aria-hidden='true'></i>
+        <h4 class='media-heading'>{{ post.time|raw }}</h4></a>
+        {% include 'partials/facebook.post.' ~ post.type ~ '.html.twig' ignore missing %}
+        {% if config.plugins.facebook.facebook_page_settings.like_button %}
+        <div class="fb-like"
+            data-href="{{ post.link|raw }}"
+            data-layout="standard"
+            data-action="like"
+            data-show-faces="true"
+            {% if config.plugins.facebook.facebook_page_settings.share_button %}
+            data-share="true"
+            {% endif %}
+            >
+        </div>
+        {% endif %}
+        {% if config.plugins.facebook.facebook_page_settings.comments %}
+        <div class="fb-comments"
+            data-href="{{ post.link|raw }}"
+            data-colorscheme="dark"
+            data-numposts="5"
+            data-order-by="reverse_time"
+            >
+        </div>
+        {% endif %}
+    </div>
+{% endfor %}
+</div>
+
+{# NB: this references the classname used in partials/facebook.post.photo.html.twig and set above #}
+{% if config.plugins.facebook.facebook_album_settings.use_unitegallery %}
+<script type="text/javascript">
+	jQuery(document).ready(function(){
+		jQuery(".{{ album_classname }}").unitegallery();
+	});
+</script>
+{% endif %}
