@@ -7,6 +7,27 @@
     <p>{{ post.message|raw }}</p>
     {{ post.image|raw }}
     </p>
+    {% if fb_page_settings.like_button %}
+    <div class="fb-like"
+        data-href="{{ post.link|raw }}"
+        data-layout="standard"
+        data-action="like"
+        data-show-faces="true"
+        {% if fb_page_settings.share_button %}
+        data-share="true"
+        {% endif %}
+        >
+    </div>
+    {% endif %}
+    {% if fb_page_settings.comments %}
+    <div class="fb-comments"
+        data-href="{{ post.link|raw }}"
+        data-colorscheme="dark"
+        data-numposts="5"
+        data-order-by="reverse_time"
+        >
+    </div>
+    {% endif %}
   </div>
 {% endfor %}
 </div>

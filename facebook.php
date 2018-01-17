@@ -49,6 +49,12 @@ class FacebookPlugin extends Plugin {
         if ($this->config->get('plugins.facebook.built_in_css')) {
             $this->grav['assets']->add('plugin://facebook/css/facebook.css');
         }
+        if ($this->config->get('plugins.facebook.facebook_page_settings.like_button') || $this->config->get('plugins.facebook.facebook_page_settings.comments')) {
+            $this->grav['assets']->addJs('plugin://facebook/js/social-plugins.js', [
+                'loading'  => 'async',
+                'pipeline' => FALSE,
+                ]);
+        }
         if ($this->config->get('plugins.facebook.facebook_album_settings.use_unitegallery')) {
             $this->grav['assets']->add('jquery', 101);
             $this->grav['assets']->addJs('plugin://facebook/assets/unitegallery/js/unitegallery.min.js');
@@ -101,7 +107,9 @@ class FacebookPlugin extends Plugin {
                     . $config->get('facebook_page_settings.section_title') . '</h3></a>',
                 'feed' => $this->feeds,
                 'count' => empty($config->get('facebook_page_settings.count')) ? 7
-                    : $config->get('facebook_page_settings.count')];
+                    : $config->get('facebook_page_settings.count'),
+                'fb_page_settings' => $config->get('facebook_page_settings'),
+            ];
 
         $output =
             $this->grav['twig']->twig()
@@ -181,7 +189,7 @@ class FacebookPlugin extends Plugin {
     private function parsePostResponse($json, $config, $tags_string) {
         $r = array();
         $content = json_decode($json);
-        
+
         $count = $config->get('facebook_page_settings.count');
 
         foreach ($content->feed->data as $val) {
@@ -214,7 +222,7 @@ class FacebookPlugin extends Plugin {
                 $r[$count]['message'] = nl2br($val->message);
                 $r[$count]['link'] = $val->permalink_url;
                 $this->addFeed($r);
-                
+
                 $count -= 1;
             }
         }

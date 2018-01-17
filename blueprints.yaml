@@ -96,6 +96,42 @@ form:
       validate:
         type: string
 
+    facebook_page_settings.like_button:
+      type: toggle
+      label: Add Like button
+      highlight: 1
+      default: 0
+      options:
+        1: Enabled
+        0: Disabled
+      validate:
+        type: bool
+      help: Add a like button to each post using the Facebook Like social plugin
+
+    facebook_page_settings.share_button:
+      type: toggle
+      label: Add Share button
+      highlight: 1
+      default: 0
+      options:
+        1: Enabled
+        0: Disabled
+      validate:
+        type: bool
+      help: 'Add a share button to each post, requires the Facebook Like social plugin enabled above'
+
+    facebook_page_settings.comments:
+      type: toggle
+      label: Add Comments to posts
+      highlight: 1
+      default: 0
+      options:
+        1: Enabled
+        0: Disabled
+      validate:
+        type: bool
+      help: 'Add comments and a form to each post, using the Facebook Comments social plugin'
+
     EventSettings:
       type: section
       title: Event settings
@@ -178,7 +214,7 @@ form:
       default: ''
       validate:
         type: string
-        
+
     facebook_album_settings.album_name:
       type: text
       size: large
