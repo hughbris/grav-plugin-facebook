@@ -132,6 +132,17 @@ form:
         type: bool
       help: 'Add comments and a form to each post, using the Facebook Comments social plugin'
 
+    facebook_page_settings.api_fields:
+      type: list
+      name: api_fields
+      label: API fields
+      btnLabel: Add field
+      help: 'Extra fields to import from the API so that you can reference them in your templates: https://developers.facebook.com/docs/graph-api/reference/v2.11/post'
+      fields:
+        .api_field:
+          type: text
+          label: Field name
+
     EventSettings:
       type: section
       title: Event settings

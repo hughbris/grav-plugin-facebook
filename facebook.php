@@ -89,11 +89,20 @@ class FacebookPlugin extends Plugin {
                 ? $config->get('facebook_page_settings.filter_by_tags')
                 : $filtered_by_tags_from_page;
         // Generate API url
+        $default_api_fields = array(
+            'permalink_url',
+            'created_time',
+            'link',
+            'attachments',
+            'message',
+            'type',
+            );
+        $api_fields_list = implode(',', array_merge($default_api_fields, array_column($config->get('facebook_page_settings.api_fields'), 'api_field')));
         $url =
             'https://graph.facebook.com/' . $config->get('facebook_page_settings.page_id')
-            . '/?fields=feed.limit(' . $config->get('facebook_page_settings.count') . '){permalink_url,created_time,link,attachments,message,story,type,with_tags}'
+            . '/?fields=feed.limit(' . $config->get('facebook_page_settings.count') . '){' . $api_fields_list . '}'
             . '&access_token=' . $config->get('facebook_common_settings.application_id') . '|' . $config->get('facebook_common_settings.application_secret');
-        $results = Response::get($url);
+        $results = Response::get($url); // dump(json_decode($results));
 
         $this->parsePostResponse($results, $config, $filter_by_tags);
 
