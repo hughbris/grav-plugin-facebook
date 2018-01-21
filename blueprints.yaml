@@ -274,3 +274,11 @@ form:
       default: ''
       validate:
         type: string
+
+    facebook_common_settings.api_version:
+      type: text
+      size: small
+      label: Facebook API version
+      default: '2.11'
+      validate:
+        type: string

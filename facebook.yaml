@@ -1,3 +1,14 @@
 enabled: true
 built_in_css: true
 use_unitegallery_plugin: true
+facebook_page_settings:
+  like_button: true
+  share_button: true
+  comments: true
+  api_fields:
+    -
+      api_field: story
+    -
+      api_field: with_tags
+facebook_common_settings:
+  api_version: '2.11'
