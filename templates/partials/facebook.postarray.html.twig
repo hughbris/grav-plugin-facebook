@@ -34,8 +34,11 @@
 {# NB: this references the classname used in partials/facebook.post.photo.html.twig and set above #}
 {% if config.plugins.facebook.facebook_album_settings.use_unitegallery %}
 <script type="text/javascript">
+    /* we need to loop through elements with a class and grab their id attribute because unitegallery seems to require that, rather than any jQ selector */
 	jQuery(document).ready(function(){
-		jQuery(".{{ album_classname }}").unitegallery();
+        jQuery(".{{ album_classname }}").each( function(idx, el) {
+            jQuery('#' + el.id).unitegallery();
+            });
 	});
 </script>
 {% endif %}
