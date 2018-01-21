@@ -5,10 +5,10 @@ facebook_page_settings:
   like_button: true
   share_button: true
   comments: true
+facebook_common_settings:
+  api_version: '2.11'
   api_fields:
     -
       api_field: story
     -
       api_field: with_tags
-facebook_common_settings:
-  api_version: '2.11'

@@ -97,7 +97,7 @@ class FacebookPlugin extends Plugin {
             'message',
             'type',
             );
-        $api_fields_list = implode(',', array_merge($default_api_fields, array_column($config->get('facebook_page_settings.api_fields'), 'api_field')));
+        $api_fields_list = implode(',', array_merge($default_api_fields, array_column($config->get('facebook_common_settings.api_fields'), 'api_field')));
         $url =
             'https://graph.facebook.com/' . $config->get('facebook_page_settings.page_id')
             . '/?fields=feed.limit(' . $config->get('facebook_page_settings.count') . '){' . $api_fields_list . '}'
