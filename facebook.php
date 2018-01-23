@@ -208,6 +208,9 @@ class FacebookPlugin extends Plugin {
             if (empty(trim($tags_string)) || (property_exists($val, 'message') && $this->tagsExist($tags_string, $val->message))) {
                 $created_at = $val->created_time;
                 $created_date_object = date_create($created_at);
+                if( !empty($tz = $this->grav['config']->get('system.timezone')) ) {
+                    date_timezone_set($created_date_object, timezone_open($tz));
+                }
                 $formatted_date =
                     date_format($created_date_object,
                         $config->get('facebook_page_settings.date_format'));
